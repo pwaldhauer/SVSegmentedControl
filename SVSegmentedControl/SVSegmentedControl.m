@@ -538,52 +538,9 @@
         [self.backgroundImage drawInRect:rect];
     
     else {
-        // bottom gloss
-        CGRect insetRect = CGRectMake(0, 0, rect.size.width, rect.size.height-1);
-        CGContextSetFillColorWithColor(context, [UIColor colorWithWhite:1 alpha:0.1].CGColor);
-        
-        UIBezierPath *bottomGlossPath = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:self.cornerRadius];
-        [bottomGlossPath appendPath:[UIBezierPath bezierPathWithRoundedRect:insetRect cornerRadius:self.cornerRadius]];
-        bottomGlossPath.usesEvenOddFillRule = YES;
-        [bottomGlossPath fill];
-        
-        CGPathRef roundedRect = [UIBezierPath bezierPathWithRoundedRect:insetRect cornerRadius:self.cornerRadius].CGPath;
-        CGContextAddPath(context, roundedRect);
-        CGContextClip(context);
-        
-        // background tint
-        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-        UIColor *tintColorToApply = _tintColor ? _tintColor : self.backgroundTintColor;
-        
-        // if color was created with colorWithWhite:alpha:
-        if(CGColorGetNumberOfComponents(tintColorToApply.CGColor) == 2) {
-            float white = CGColorGetComponents(tintColorToApply.CGColor)[0];
-            float alpha = CGColorGetComponents(tintColorToApply.CGColor)[1];
-            tintColorToApply = [UIColor colorWithRed:white green:white blue:white alpha:alpha];
-        }
-        
-        CGFloat tintColorRGBA[4];
-        [tintColorToApply getRed:&tintColorRGBA[0] green:&tintColorRGBA[1] blue:&tintColorRGBA[2] alpha:&tintColorRGBA[3]];
-        
-        float darkeningDelta = 0.2;
-        UIColor *darkerTintColor = [UIColor colorWithRed:(tintColorRGBA[0] - darkeningDelta) green:(tintColorRGBA[1] - darkeningDelta) blue:(tintColorRGBA[2] - darkeningDelta) alpha:(tintColorRGBA[3] + darkeningDelta*0.2)];
-        CGFloat darkerTintColorRGBA[4];
-        [darkerTintColor getRed:&darkerTintColorRGBA[0] green:&darkerTintColorRGBA[1] blue:&darkerTintColorRGBA[2] alpha:&darkerTintColorRGBA[3]];
-        
-        CGFloat components[8] = {darkerTintColorRGBA[0], darkerTintColorRGBA[1], darkerTintColorRGBA[2], darkerTintColorRGBA[3], tintColorRGBA[0], tintColorRGBA[1], tintColorRGBA[2], tintColorRGBA[3]};
-        CGGradientRef gradient = CGGradientCreateWithColorComponents(colorSpace, components, NULL, 2);
-        CGContextDrawLinearGradient(context, gradient, CGPointMake(0,0), CGPointMake(0,CGRectGetHeight(rect)-1), 0);
-        CGGradientRelease(gradient);
-        CGColorSpaceRelease(colorSpace);
-        
-        // inner shadow
-        NSArray *paths = [NSArray arrayWithObject:[UIBezierPath bezierPathWithRoundedRect:insetRect cornerRadius:self.cornerRadius]];
-        UIImage *mask = [self maskWithPaths:paths bounds:CGRectInset(insetRect, -10, -10)];
-        UIImage *invertedImage = [self invertedImageWithMask:mask color:self.innerShadowColor];
-        
-        CGContextSetShadowWithColor(context, CGSizeMake(0, 1), 2, self.innerShadowColor.CGColor);
-        [invertedImage drawAtPoint:CGPointMake(-10, -10)];
-        
+        UIBezierPath *path = [UIBezierPath bezierPathWithRect:rect];
+        CGContextSetFillColorWithColor(context, self.backgroundTintColor.CGColor);
+        [path fill];
     }
     
 	CGContextSetShadowWithColor(context, self.textShadowOffset, 0, self.textShadowColor.CGColor);
